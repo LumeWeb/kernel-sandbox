@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"target": "esnext",
+        "module": "commonjs",
+		"declaration": true,
+		"moduleResolution": "node",
+		"outDir": "./build",
+		"strict": true,
+        "allowSyntheticDefaultImports": true
+	},
+	"include": [
+        "src",
+    ],
+	"exclude": ["node_modules", "**/__tests__/*"]
+}
