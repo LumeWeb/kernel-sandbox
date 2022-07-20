@@ -139,6 +139,11 @@ export async function loadTester(page: Page, port = 8080) {
   await new Promise((resolve) => {
     server.start(resolve);
   });
+  const stop = () => server.stop();
+
+  process.on("SIGTERM", stop);
+  page.browser().on("disconnected", stop);
+
   await page.goto(`http://localhost:${port}/`);
   await page.evaluate(() => {
     return kernel.init();
