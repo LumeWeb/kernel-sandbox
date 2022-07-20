@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-ignore
 import { loadTester, login } from "../dist/index.js";
 
 import puppeteer, { Browser, Page } from "puppeteer";
