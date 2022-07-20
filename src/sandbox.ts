@@ -2,7 +2,7 @@
 // @ts-ignore
 import { loadTester, login } from "../dist/index.js";
 
-import puppeteer, { Browser, Page } from "puppeteer";
+import puppeteer, { Browser, Page, ProtocolError } from "puppeteer";
 
 let browser: Browser;
 
@@ -16,4 +16,9 @@ let browser: Browser;
 
 process.on("SIGTERM", async () => {
   await browser.close();
+});
+process.on("uncaughtException", (e) => {
+  if (!(e instanceof ProtocolError)) {
+    throw e;
+  }
 });
