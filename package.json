@@ -2,7 +2,7 @@
     "name": "@lumeweb/kernel-tester",
     "version": "0.1.0",
     "scripts": {
-        "build": "tsc && rollup -c && cp dist/tester.js public/tester.js && cp build/*.d.ts dist && rm -f dist/tester.js && rm -rf build/"
+        "build": "tsc && rollup -c && cp dist/tester.js public/tester.js && mkdir -p bin && cp build/sandbox.js bin/sandbox.js && cp build/*.d.ts dist && rm -f dist/tester.js && rm -rf build/"
     },
     "main": "dist/index.js",
     "types": "types",
@@ -23,5 +23,8 @@
         "rollup": "^2.75.7",
         "rollup-plugin-polyfill-node": "^0.9.0",
         "typescript": "^4.5"
+    },
+    "bin": {
+        "kernel-sandbox": "bin/sandbox.js"
     }
 }
