@@ -37,108 +37,109 @@
 	    console.error("[libkernel]", ...inputs);
 	}
 
-	// tryStringify will try to turn the provided input into a string. If the input
-	// object is already a string, the input object will be returned. If the input
-	// object has a toString method, the toString method will be called. If that
-	// fails, we try to call JSON.stringify on the object. And if that fails, we
-	// set the return value to "[stringify failed]".
-	function tryStringify$1(obj) {
+	// objAsString will try to return the provided object as a string. If the
+	// object is already a string, it will be returned without modification. If the
+	// object is an 'Error', the message of the error will be returned. If the object
+	// has a toString method, the toString method will be called and the result
+	// will be returned. If the object is null or undefined, a special string will
+	// be returned indicating that the undefined/null object cannot be converted to
+	// a string. In all other cases, JSON.stringify is used. If JSON.stringify
+	// throws an exception, a message "[could not provide object as string]" will
+	// be returned.
+	//
+	// NOTE: objAsString is intended to produce human readable output. It is lossy,
+	// and it is not intended to be used for serialization.
+	function objAsString(obj) {
 	    // Check for undefined input.
-	    if (obj === undefined || obj === null) {
-	        return "[cannot stringify undefined input]";
+	    if (obj === undefined) {
+	        return "[cannot convert undefined to string]";
+	    }
+	    if (obj === null) {
+	        return "[cannot convert null to string]";
 	    }
 	    // Parse the error into a string.
 	    if (typeof obj === "string") {
 	        return obj;
 	    }
-	    // Check if the object has a custom toString and use that if so.
-	    let hasToString = typeof obj.toString === "function";
-	    if (hasToString && obj.toString !== Object.prototype.toString) {
-	        return obj.toString();
+	    // Check if the object is an error, and return the message of the error if
+	    // so.
+	    if (obj instanceof Error) {
+	        return obj.message;
+	    }
+	    // Check if the object has a 'toString' method defined on it. To ensure
+	    // that we don't crash or throw, check that the toString is a function, and
+	    // also that the return value of toString is a string.
+	    if (Object.prototype.hasOwnProperty.call(obj, "toString")) {
+	        if (typeof obj.toString === "function") {
+	            const str = obj.toString();
+	            if (typeof str === "string") {
+	                return str;
+	            }
+	        }
 	    }
 	    // If the object does not have a custom toString, attempt to perform a
-	    // JSON.stringify.
+	    // JSON.stringify. We use a lot of bigints in libskynet, and calling
+	    // JSON.stringify on an object with a bigint will cause a throw, so we add
+	    // some custom handling to allow bigint objects to still be encoded.
 	    try {
-	        return JSON.stringify(obj);
+	        return JSON.stringify(obj, (_, v) => {
+	            if (typeof v === "bigint") {
+	                return v.toString();
+	            }
+	            return v;
+	        });
 	    }
-	    catch {
+	    catch (err) {
+	        if (err !== undefined && typeof err.message === "string") {
+	            return `[stringify failed]: ${err.message}`;
+	        }
 	        return "[stringify failed]";
 	    }
 	}
 
 	// addContextToErr is a helper function that standardizes the formatting of
-	// adding context to an error. Within the world of go we discovered that being
-	// persistent about layering context onto errors is helpful when debugging,
-	// even though it often creates rather verbose error messages.
-	//
-	// addContextToErr will return null if the input err is null.
+	// adding context to an error.
 	//
 	// NOTE: To protect against accidental situations where an Error type or some
 	// other type is provided instead of a string, we wrap both of the inputs with
-	// tryStringify before returning them. This prevents runtime failures.
+	// objAsString before returning them. This prevents runtime failures.
 	function addContextToErr$1(err, context) {
-	    if (err === null) {
+	    if (err === null || err === undefined) {
 	        err = "[no error provided]";
 	    }
-	    return tryStringify$1(context) + ": " + tryStringify$1(err);
-	}
-	// composeErr takes a series of inputs and composes them into a single string.
-	// Each element will be separated by a newline. If the input is not a string,
-	// it will be transformed into a string with JSON.stringify.
-	//
-	// Any object that cannot be stringified will be skipped, though an error will
-	// be logged.
-	function composeErr$1(...inputs) {
-	    let result = "";
-	    let resultEmpty = true;
-	    for (let i = 0; i < inputs.length; i++) {
-	        if (inputs[i] === null) {
-	            continue;
-	        }
-	        if (resultEmpty) {
-	            resultEmpty = false;
-	        }
-	        else {
-	            result += "\n";
-	        }
-	        result += tryStringify$1(inputs[i]);
-	    }
-	    if (resultEmpty) {
-	        return null;
-	    }
-	    return result;
+	    return objAsString(context) + ": " + objAsString(err);
 	}
 
-	// Helper consts to make it easy to return empty values alongside errors.
-	const nu8$7 = new Uint8Array(0);
+	const MAX_UINT_64 = 18446744073709551615n;
 	// bufToB64 will convert a Uint8Array to a base64 string with URL encoding and
 	// no padding characters.
 	function bufToB64$1(buf) {
-	    let b64Str = btoa(String.fromCharCode.apply(null, buf));
-	    return b64Str.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+	    const b64Str = btoa(String.fromCharCode(...buf));
+	    return b64Str.replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
 	}
 	// encodeU64 will encode a bigint in the range of a uint64 to an 8 byte
 	// Uint8Array.
 	function encodeU64$1(num) {
 	    // Check the bounds on the bigint.
 	    if (num < 0) {
-	        return [nu8$7, "expected a positive integer"];
+	        return [new Uint8Array(0), "expected a positive integer"];
 	    }
-	    if (num > 18446744073709551615n) {
-	        return [nu8$7, "expected a number no larger than a uint64"];
+	    if (num > MAX_UINT_64) {
+	        return [new Uint8Array(0), "expected a number no larger than a uint64"];
 	    }
 	    // Encode the bigint into a Uint8Array.
-	    let encoded = new Uint8Array(8);
+	    const encoded = new Uint8Array(8);
 	    for (let i = 0; i < encoded.length; i++) {
-	        let byte = Number(num & 0xffn);
+	        const byte = Number(num & 0xffn);
 	        encoded[i] = byte;
 	        num = num >> 8n;
 	    }
 	    return [encoded, null];
 	}
 
-	let gfi$1 = function (init) {
-	    let i, r = new Float64Array(16);
+	const gfi$1 = function (init) {
+	    let i;
+	    const r = new Float64Array(16);
 	    if (init)
 	        for (i = 0; i < init.length; i++)
 	            r[i] = init[i];
@@ -160,6 +161,38 @@
 	    0xa0b0, 0x4a0e, 0x1b27, 0xc4ee, 0xe478, 0xad2f, 0x1806, 0x2f43, 0xd7a7, 0x3dfb, 0x0099, 0x2b4d, 0xdf0b, 0x4fc1,
 	    0x2480, 0x2b83,
 	]);
+
+	// checkObj take an untrusted object and a list of typechecks to perform and
+	// will check that the object adheres to the typechecks. If a type is missing
+	// or has the wrong type, an error will be returned. This is intended to be
+	// used to check untrusted objects after they get decoded from JSON. This is
+	// particularly useful when receiving objects from untrusted entities over the
+	// network or over postMessage.
+	//
+	// Below is an example object, followed by the call that you would make to
+	// checkObj to verify the object.
+	//
+	// const expectedObj = {
+	//   aNum: 35,
+	//   aStr: "hi",
+	//   aBig: 10n,
+	// };
+	//
+	// const err = checkObj(expectedObj, [
+	//   ["aNum", "number"],
+	//   ["aStr", "string"],
+	//   ["aBig", "bigint"],
+	// ]);
+	function checkObj(obj, checks) {
+	    for (let i = 0; i < checks.length; i++) {
+	        const check = checks[i];
+	        const type = typeof obj[check[0]];
+	        if (type !== check[1]) {
+	            return "check failed, expecting " + check[1] + " got " + type;
+	        }
+	    }
+	    return null;
+	}
 
 	// Create the queryMap.
 	let queries = {};
@@ -236,7 +269,12 @@
 	        // at a minimum is working.
 	        if (initResolved === false) {
 	            initResolved = true;
-	            initResolve();
+	            // We can't actually establish that init is complete until the
+	            // kernel source has been set. This happens async and might happen
+	            // after we receive the auth message.
+	            sourcePromise.then(() => {
+	                initResolve();
+	            });
 	        }
 	        // If the auth status message says that login is complete, it means
 	        // that the user is logged in.
@@ -314,6 +352,7 @@
 	    kernelSource = iframe.contentWindow;
 	    kernelOrigin = "https://skt.us";
 	    kernelAuthLocation = "https://skt.us/auth.html";
+	    sourceResolve();
 	    // Set a timer to fail the login process if the kernel doesn't load in
 	    // time.
 	    setTimeout(() => {
@@ -355,6 +394,7 @@
 	        kernelOrigin = window.origin;
 	        kernelAuthLocation = "http://kernel.skynet/auth.html";
 	        console.log("established connection to bridge, using browser extension for kernel");
+	        sourceResolve();
 	    });
 	    // Add the handler to the queries map.
 	    let nonce = nextNonce();
@@ -399,6 +439,8 @@
 	let kernelLoadedPromise;
 	let logoutResolve;
 	let logoutPromise;
+	let sourceResolve;
+	let sourcePromise; // resolves when the source is known and set
 	function init() {
 	    // If init has already been called, just return the init promise.
 	    if (initialized === true) {
@@ -422,6 +464,9 @@
 	    logoutPromise = new Promise((resolve) => {
 	        logoutResolve = resolve;
 	    });
+	    sourcePromise = new Promise((resolve) => {
+	        sourceResolve = resolve;
+	    });
 	    // Return the initPromise, which will resolve when bootloader init is
 	    // complete.
 	    return initPromise;
@@ -430,7 +475,7 @@
 	// module identifier (typically a skylink), the second input is the method
 	// being called on the module, and the final input is optional and contains
 	// input data to be passed to the module. The input data will depend on the
-	// module and the method that is being called. The return value is an errTuple
+	// module and the method that is being called. The return value is an ErrTuple
 	// that contains the module's response. The format of the response is an
 	// arbitrary object whose fields depend on the module and method being called.
 	//
@@ -461,7 +506,7 @@
 	// as the receiveUpdate function, it's an arbitrary object whose fields depend
 	// on the module and method being queried.
 	//
-	// The second return value is a promise that returns an errTuple. It will
+	// The second return value is a promise that returns an ErrTuple. It will
 	// resolve when the module sends a response message, and works the same as the
 	// return value of callModule.
 	function connectModule(module, method, data, receiveUpdate) {
@@ -540,16 +585,14 @@
 	    // kernel provides a 'response' message. The other is for internal use and
 	    // will resolve once the query has been created.
 	    let p;
-	    let queryCreated;
-	    let haveQueryCreated = new Promise((resolve) => {
-	        queryCreated = resolve;
+	    let haveQueryCreated = new Promise((queryCreatedResolve) => {
 	        p = new Promise((resolve) => {
 	            getNonce.then((nonce) => {
 	                queries[nonce] = { resolve };
 	                if (receiveUpdate !== null && receiveUpdate !== undefined) {
 	                    queries[nonce]["receiveUpdate"] = receiveUpdate;
 	                }
-	                queryCreated(nonce);
+	                queryCreatedResolve(nonce);
 	            });
 	        });
 	    });
@@ -653,16 +696,16 @@
 	// logoutComplete() will block until auth has reached stage 4. libkernel does
 	// not support resetting the auth stages, once stage 4 has been reached the app
 	// needs to refresh.
+	// loginComplete will resolve when the user has successfully logged in.
+	function loginComplete() {
+	    return loginPromise;
+	}
 	// kernelLoaded will resolve when the user has successfully loaded the kernel.
 	// If there was an error in loading the kernel, the error will be returned.
 	//
 	// NOTE: kernelLoaded will not resolve until after loginComplete has resolved.
 	function kernelLoaded() {
 	    return kernelLoadedPromise;
-	}
-	// loginComplete will resolve when the user has successfully logged in.
-	function loginComplete() {
-	    return loginPromise;
 	}
 	// logoutComplete will resolve when the user has logged out. Note that
 	// logoutComplete will only resolve if the user logged in first - if the user
@@ -718,12 +761,27 @@
 	// because the object is relatively complex and all of the fields are more or
 	// less required.
 	function registryRead(publicKey, dataKey) {
-	    let registryModule = "AQCovesg1AXUzKXLeRzQFILbjYMKr_rvNLsNhdq5GbYb2Q";
-	    let data = {
-	        publicKey,
-	        dataKey,
-	    };
-	    return callModule(registryModule, "readEntry", data);
+	    return new Promise((resolve) => {
+	        let registryModule = "AQCovesg1AXUzKXLeRzQFILbjYMKr_rvNLsNhdq5GbYb2Q";
+	        let data = {
+	            publicKey,
+	            dataKey,
+	        };
+	        callModule(registryModule, "readEntry", data).then(([result, err]) => {
+	            if (err !== null) {
+	                resolve([{}, addContextToErr$1(err, "readEntry module call failed")]);
+	                return;
+	            }
+	            resolve([
+	                {
+	                    exists: result.exists,
+	                    entryData: result.entryData,
+	                    revision: result.revision,
+	                },
+	                null,
+	            ]);
+	        });
+	    });
 	}
 	// registryWrite will perform a registry write on a portal.
 	//
@@ -807,7 +865,7 @@
 		init: init,
 		newKernelQuery: newKernelQuery,
 		addContextToErr: addContextToErr$1,
-		composeErr: composeErr$1
+		checkObj: checkObj
 	});
 
 	var require$$0 = /*@__PURE__*/getAugmentedNamespace(dist$1);
