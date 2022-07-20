@@ -12,14 +12,4 @@ export default [
     plugins: [resolve(), commonjs(), json()],
     inlineDynamicImports: true,
   },
-  {
-    input: "build/index.js",
-    output: {
-      file: "dist/index.js",
-      format: "cjs",
-      exports: "auto",
-    },
-    plugins: [resolve({ preferBuiltins: true }), commonjs(), json()],
-    inlineDynamicImports: true,
-  },
 ];
