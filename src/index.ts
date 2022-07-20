@@ -6,16 +6,19 @@ import {
   seedPhraseToSeed,
   taggedRegistryEntryKeys,
 } from "libskynet";
-import { SEED_BYTES, seedToChecksumWords } from "libskynet/dist/seed";
-import { DICTIONARY_UNIQUE_PREFIX } from "libskynet/dist/dictionary";
+import { SEED_BYTES, seedToChecksumWords } from "libskynet/dist/seed.js";
+import { DICTIONARY_UNIQUE_PREFIX } from "libskynet/dist/dictionary.js";
 import * as path from "path";
 import { overwriteRegistryEntry } from "libskynetnode";
 import * as kernel from "libkernel";
 import { webcrypto } from "crypto";
 // @ts-ignore
-import * as StaticServer from "static-server";
+import StaticServer from "static-server";
 import { Page } from "puppeteer";
-import { errTuple } from "libskynet/dist";
+import { errTuple } from "libskynet";
+
+import * as url from "url";
+const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 
 export const KERNEL_TEST_SUITE =
   "AQCPJ9WRzMpKQHIsPo8no3XJpUydcDCjw7VJy8lG1MCZ3g";
