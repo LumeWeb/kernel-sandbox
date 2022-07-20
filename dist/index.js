@@ -1,21 +1,20 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.tester = exports.loadTester = exports.login = exports.generateSeedPhrase = exports.TEST_KERNEL_SKLINK = exports.KERNEL_HELPER_MODULE = exports.KERNEL_TEST_SUITE = void 0;
-const libskynet_1 = require("libskynet");
-const seed_1 = require("libskynet/dist/seed");
-const dictionary_1 = require("libskynet/dist/dictionary");
-const path = require("path");
-const libskynetnode_1 = require("libskynetnode");
-const kernel = require("libkernel");
-const crypto_1 = require("crypto");
+import { b64ToBuf, bufToHex, deriveChildSeed, dictionary, seedPhraseToSeed, taggedRegistryEntryKeys, } from "libskynet";
+import { SEED_BYTES, seedToChecksumWords } from "libskynet/dist/seed.js";
+import { DICTIONARY_UNIQUE_PREFIX } from "libskynet/dist/dictionary.js";
+import * as path from "path";
+import { overwriteRegistryEntry } from "libskynetnode";
+import * as kernel from "libkernel";
+import { webcrypto } from "crypto";
 // @ts-ignore
-const StaticServer = require("static-server");
-exports.KERNEL_TEST_SUITE = "AQCPJ9WRzMpKQHIsPo8no3XJpUydcDCjw7VJy8lG1MCZ3g";
-exports.KERNEL_HELPER_MODULE = "AQCoaLP6JexdZshDDZRQaIwN3B7DqFjlY7byMikR7u1IEA";
-exports.TEST_KERNEL_SKLINK = "AQDJDoXMJiiEMBxXodQvUV89qtQHsnXWyV1ViQ9M1pMjUg";
+import StaticServer from "static-server";
+import * as url from "url";
+const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
+export const KERNEL_TEST_SUITE = "AQCPJ9WRzMpKQHIsPo8no3XJpUydcDCjw7VJy8lG1MCZ3g";
+export const KERNEL_HELPER_MODULE = "AQCoaLP6JexdZshDDZRQaIwN3B7DqFjlY7byMikR7u1IEA";
+export const TEST_KERNEL_SKLINK = "AQDJDoXMJiiEMBxXodQvUV89qtQHsnXWyV1ViQ9M1pMjUg";
 const SEED_ENTROPY_WORDS = 13;
-const crypto = crypto_1.webcrypto;
-function generateSeedPhrase() {
+const crypto = webcrypto;
+export function generateSeedPhrase() {
     // Get the random numbers for the seed phrase. Typically, you need to
     // have code that avoids bias by checking the random results and
     // re-rolling the random numbers if the result is outside of the range
@@ -28,17 +27,16 @@ function generateSeedPhrase() {
     // Generate the seed phrase from the randNums.
     let seedWords = [];
     for (let i = 0; i < SEED_ENTROPY_WORDS; i++) {
-        let wordIndex = randNums[i] % libskynet_1.dictionary.length;
-        seedWords.push(libskynet_1.dictionary[wordIndex]);
+        let wordIndex = randNums[i] % dictionary.length;
+        seedWords.push(dictionary[wordIndex]);
     }
     // Convert the seedWords to a seed.
     let [seed] = seedWordsToSeed(seedWords);
     // Compute the checksum.
-    let [checksumOne, checksumTwo, err2] = (0, seed_1.seedToChecksumWords)(seed);
+    let [checksumOne, checksumTwo, err2] = seedToChecksumWords(seed);
     // Assemble the final seed phrase and set the text field.
     return [...seedWords, checksumOne, checksumTwo].join(" ");
 }
-exports.generateSeedPhrase = generateSeedPhrase;
 function seedWordsToSeed(seedWords) {
     // Input checking.
     if (seedWords.length !== SEED_ENTROPY_WORDS) {
@@ -48,15 +46,15 @@ function seedWordsToSeed(seedWords) {
         ];
     }
     // We are getting 16 bytes of entropy.
-    let bytes = new Uint8Array(seed_1.SEED_BYTES);
+    let bytes = new Uint8Array(SEED_BYTES);
     let curByte = 0;
     let curBit = 0;
     for (let i = 0; i < SEED_ENTROPY_WORDS; i++) {
         // Determine which number corresponds to the next word.
         let word = -1;
-        for (let j = 0; j < libskynet_1.dictionary.length; j++) {
-            if (seedWords[i].slice(0, dictionary_1.DICTIONARY_UNIQUE_PREFIX) ===
-                libskynet_1.dictionary[j].slice(0, dictionary_1.DICTIONARY_UNIQUE_PREFIX)) {
+        for (let j = 0; j < dictionary.length; j++) {
+            if (seedWords[i].slice(0, DICTIONARY_UNIQUE_PREFIX) ===
+                dictionary[j].slice(0, DICTIONARY_UNIQUE_PREFIX)) {
                 word = j;
                 break;
             }
@@ -87,21 +85,20 @@ function seedWordsToSeed(seedWords) {
     }
     return [bytes, null];
 }
-async function login(page, seed = generateSeedPhrase()) {
+export async function login(page, seed = generateSeedPhrase()) {
     await page.goto("http://skt.us");
     let userSeed;
-    [userSeed] = (0, libskynet_1.seedPhraseToSeed)(seed);
-    let seedHex = (0, libskynet_1.bufToHex)(userSeed);
+    [userSeed] = seedPhraseToSeed(seed);
+    let seedHex = bufToHex(userSeed);
     await page.evaluate((seed) => {
         window.localStorage.setItem("v1-seed", seed);
     }, seedHex);
-    let kernelEntrySeed = (0, libskynet_1.deriveChildSeed)(userSeed, "userPreferredKernel2");
+    let kernelEntrySeed = deriveChildSeed(userSeed, "userPreferredKernel2");
     // Get the registry keys.
-    let [keypair, dataKey] = (0, libskynet_1.taggedRegistryEntryKeys)(kernelEntrySeed, "user kernel");
-    await (0, libskynetnode_1.overwriteRegistryEntry)(keypair, dataKey, (0, libskynet_1.b64ToBuf)(exports.TEST_KERNEL_SKLINK)[0]);
+    let [keypair, dataKey] = taggedRegistryEntryKeys(kernelEntrySeed, "user kernel");
+    await overwriteRegistryEntry(keypair, dataKey, b64ToBuf(TEST_KERNEL_SKLINK)[0]);
 }
-exports.login = login;
-async function loadTester(page, port = 8080) {
+export async function loadTester(page, port = 8080) {
     const server = new StaticServer({
         rootPath: path.resolve(__dirname, "..", "public"),
         port,
@@ -118,7 +115,6 @@ async function loadTester(page, port = 8080) {
         return kernel.init();
     });
 }
-exports.loadTester = loadTester;
 class Tester {
     page;
     constructor(page) {
@@ -130,5 +126,4 @@ class Tester {
         }, id, method, data);
     }
 }
-const tester = (page) => new Tester(page);
-exports.tester = tester;
+export const tester = (page) => new Tester(page);
