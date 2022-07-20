@@ -22,7 +22,7 @@ export const KERNEL_TEST_SUITE =
 export const KERNEL_HELPER_MODULE =
   "AQCoaLP6JexdZshDDZRQaIwN3B7DqFjlY7byMikR7u1IEA";
 export const TEST_KERNEL_SKLINK =
-  "AQCw2_9rg0Fxuy8ky3pvLiDhcJTmAqthy1Buc7Frl2v2fA";
+  "AQDJDoXMJiiEMBxXodQvUV89qtQHsnXWyV1ViQ9M1pMjUg";
 const SEED_ENTROPY_WORDS = 13;
 const crypto = webcrypto as unknown as Crypto;
 
