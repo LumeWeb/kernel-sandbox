@@ -170,7 +170,7 @@
     }
 
     // Create the queryMap.
-    let queries = {};
+    const queries = {};
     // Define the nonce handling. nonceSeed is 16 random bytes that get generated
     // at init and serve as the baseline for creating random nonces. nonceCounter
     // tracks which messages have been sent. We hash together the nonceSeed and the
@@ -194,15 +194,15 @@
     // code running in the same webpage, so we don't need to hash our nonceSeed. We
     // just need it to be unique, not undetectable.
     function nextNonce() {
-        let nonceNum = nonceCounter;
+        const nonceNum = nonceCounter;
         nonceCounter += 1;
-        let [nonceNumBytes, err] = encodeU64$1(BigInt(nonceNum));
+        const [nonceNumBytes, err] = encodeU64$1(BigInt(nonceNum));
         if (err !== null) {
             // encodeU64 only fails if nonceNum is outside the bounds of a
             // uint64, which shouldn't happen ever.
             logErr("encodeU64 somehow failed", err);
         }
-        let noncePreimage = new Uint8Array(nonceNumBytes.length + nonceSeed.length);
+        const noncePreimage = new Uint8Array(nonceNumBytes.length + nonceSeed.length);
         noncePreimage.set(nonceNumBytes, 0);
         noncePreimage.set(nonceSeed, nonceNumBytes.length);
         return bufToB64$1(noncePreimage);
@@ -210,9 +210,9 @@
     // Establish the handler for incoming messages.
     function handleMessage(event) {
         // Ignore all messages that aren't from approved kernel sources. The two
-        // approved sources are skt.us and the browser extension bridge (which has
+        // approved sources are kernel.lumeweb.com and the browser extension bridge (which has
         // an event.source equal to 'window')
-        if (event.source !== window && event.origin !== "https://skt.us") {
+        if (event.source !== window && event.origin !== "https://kernel.lumeweb.com") {
             return;
         }
         // Ignore any messages that don't have a method and data field.
@@ -289,7 +289,7 @@
         if (!(event.data.nonce in queries)) {
             return;
         }
-        let query = queries[event.data.nonce];
+        const query = queries[event.data.nonce];
         // Handle a response. Once the response has been received, it is safe to
         // delete the query from the queries map.
         if (event.data.method === "response") {
@@ -314,19 +314,19 @@
         }
         // Ignore any other messages as they might be from other applications.
     }
-    // launchKernelFrame will launch the skt.us iframe that is used to connect to the
+    // launchKernelFrame will launch the kernel.lumeweb.com iframe that is used to connect to the
     // Skynet kernel if the kernel cannot be reached through the browser extension.
     function launchKernelFrame() {
-        let iframe = document.createElement("iframe");
-        iframe.src = "https://skt.us";
+        const iframe = document.createElement("iframe");
+        iframe.src = "https://kernel.lumeweb.com";
         iframe.width = "0";
         iframe.height = "0";
         iframe.style.border = "0";
         iframe.style.position = "absolute";
         document.body.appendChild(iframe);
         kernelSource = iframe.contentWindow;
-        kernelOrigin = "https://skt.us";
-        kernelAuthLocation = "https://skt.us/auth.html";
+        kernelOrigin = "https://kernel.lumeweb.com";
+        kernelAuthLocation = "https://kernel.lumeweb.com/auth.html";
         sourceResolve();
         // Set a timer to fail the login process if the kernel doesn't load in
         // time.
@@ -340,7 +340,7 @@
     }
     // messageBridge will send a message to the bridge of the skynet extension to
     // see if it exists. If it does not respond or if it responds with an error,
-    // messageBridge will open an iframe to skt.us and use that as the kernel.
+    // messageBridge will open an iframe to kernel.lumeweb.com and use that as the kernel.
     let kernelSource;
     let kernelOrigin;
     let kernelAuthLocation;
@@ -348,7 +348,7 @@
         // Establish the function that will handle the bridge's response.
         let bridgeInitComplete = false;
         let bridgeResolve = () => { }; // Need to set bridgeResolve here to make tsc happy
-        let p = new Promise((resolve) => {
+        const p = new Promise((resolve) => {
             bridgeResolve = resolve;
         });
         p.then(([, err]) => {
@@ -372,7 +372,7 @@
             sourceResolve();
         });
         // Add the handler to the queries map.
-        let nonce = nextNonce();
+        const nonce = nextNonce();
         queries[nonce] = {
             resolve: bridgeResolve,
         };
@@ -391,7 +391,7 @@
                 return;
             }
             bridgeInitComplete = true;
-            log("browser extension not found, falling back to skt.us");
+            log("browser extension not found, falling back to kernel.lumeweb.com");
             launchKernelFrame();
         }, 500);
         return initPromise;
@@ -457,12 +457,12 @@
     // callModule can only be used for query-response communication, there is no
     // support for sending or receiving updates.
     function callModule(module, method, data) {
-        let moduleCallData = {
+        const moduleCallData = {
             module,
             method,
             data,
         };
-        let [, query] = newKernelQuery("moduleCall", moduleCallData, false);
+        const [, query] = newKernelQuery("moduleCall", moduleCallData, false);
         return query;
     }
     // connectModule is the standard function to send a query to a module that can
@@ -485,7 +485,7 @@
     // resolve when the module sends a response message, and works the same as the
     // return value of callModule.
     function connectModule(module, method, data, receiveUpdate) {
-        let moduleCallData = {
+        const moduleCallData = {
             module,
             method,
             data,
@@ -548,7 +548,7 @@
         // Create a promise that will resolve once the nonce is available. We
         // cannot get the nonce until init() is complete. getNonce therefore
         // implies that init is complete.
-        let getNonce = new Promise((resolve) => {
+        const getNonce = new Promise((resolve) => {
             init().then(() => {
                 kernelLoadedPromise.then(() => {
                     resolve(nextNonce());
@@ -560,7 +560,7 @@
         // kernel provides a 'response' message. The other is for internal use and
         // will resolve once the query has been created.
         let p;
-        let haveQueryCreated = new Promise((queryCreatedResolve) => {
+        const haveQueryCreated = new Promise((queryCreatedResolve) => {
             p = new Promise((resolve) => {
                 getNonce.then((nonce) => {
                     queries[nonce] = { resolve };
@@ -575,7 +575,7 @@
         // kernelNonce. We won't be ready to receive the kernel nonce until after
         // the queries[nonce] object has been created.
         let readyForKernelNonce;
-        let getReadyForKernelNonce = new Promise((resolve) => {
+        const getReadyForKernelNonce = new Promise((resolve) => {
             readyForKernelNonce = resolve;
         });
         // Create the sendUpdate function. It defaults to doing nothing. After the
@@ -594,7 +594,7 @@
             //
             // This promise cannot itself be created until the queries[nonce]
             // object has been created, so block for the query to be created.
-            let blockForKernelNonce = new Promise((resolve) => {
+            const blockForKernelNonce = new Promise((resolve) => {
                 haveQueryCreated.then((nonce) => {
                     queries[nonce]["kernelNonceReceived"] = resolve;
                     readyForKernelNonce();
@@ -620,14 +620,14 @@
         haveQueryCreated.then((nonce) => {
             getReadyForKernelNonce.then(() => {
                 // There are two types of messages we can send depending on whether
-                // we are talking to skt.us or the background script.
-                let kernelMessage = {
+                // we are talking to kernel.lumeweb.com or the background script.
+                const kernelMessage = {
                     method,
                     nonce,
                     data,
                     sendKernelNonce: sendUpdates,
                 };
-                let backgroundMessage = {
+                const backgroundMessage = {
                     method: "newKernelQuery",
                     nonce,
                     data: kernelMessage,
@@ -635,7 +635,7 @@
                 // The message structure needs to adjust based on whether we are
                 // talking directly to the kernel or whether we are talking to the
                 // background page.
-                if (kernelOrigin === "https://skt.us") {
+                if (kernelOrigin === "https://kernel.lumeweb.com") {
                     kernelSource.postMessage(kernelMessage, kernelOrigin);
                 }
                 else {
@@ -713,8 +713,8 @@
     // prevents the portal from lying about the download.
     function download(skylink) {
         return new Promise((resolve) => {
-            let downloadModule = "AQCIaQ0P-r6FwPEDq3auCZiuH_jqrHfqRcY7TjZ136Z_Yw";
-            let data = {
+            const downloadModule = "AQCIaQ0P-r6FwPEDq3auCZiuH_jqrHfqRcY7TjZ136Z_Yw";
+            const data = {
                 skylink,
             };
             callModule(downloadModule, "secureDownload", data).then(([result, err]) => {
@@ -737,8 +737,8 @@
     // less required.
     function registryRead(publicKey, dataKey) {
         return new Promise((resolve) => {
-            let registryModule = "AQCovesg1AXUzKXLeRzQFILbjYMKr_rvNLsNhdq5GbYb2Q";
-            let data = {
+            const registryModule = "AQCovesg1AXUzKXLeRzQFILbjYMKr_rvNLsNhdq5GbYb2Q";
+            const data = {
                 publicKey,
                 dataKey,
             };
@@ -765,8 +765,8 @@
     // safe set of functions for writing to the registry such as getsetjson.
     function registryWrite(keypair, dataKey, entryData, revision) {
         return new Promise((resolve) => {
-            let registryModule = "AQCovesg1AXUzKXLeRzQFILbjYMKr_rvNLsNhdq5GbYb2Q";
-            let callData = {
+            const registryModule = "AQCovesg1AXUzKXLeRzQFILbjYMKr_rvNLsNhdq5GbYb2Q";
+            const callData = {
                 publicKey: keypair.publicKey,
                 secretKey: keypair.secretKey,
                 dataKey,
@@ -791,8 +791,8 @@
     function upload(filename, fileData) {
         return new Promise((resolve) => {
             // Prepare the module call.
-            let uploadModule = "AQAT_a0MzOInZoJzt1CwBM2U8oQ3GIfP5yKKJu8Un-SfNg";
-            let data = {
+            const uploadModule = "AQAT_a0MzOInZoJzt1CwBM2U8oQ3GIfP5yKKJu8Un-SfNg";
+            const data = {
                 filename,
                 fileData,
             };
@@ -813,7 +813,7 @@
     // distribution of the kernel".
     function kernelVersion() {
         return new Promise((resolve) => {
-            let [, query] = newKernelQuery("version", {}, false);
+            const [, query] = newKernelQuery("version", {}, false);
             query.then(([result, err]) => {
                 if (err !== null) {
                     resolve(["", "", err]);
@@ -840,7 +840,8 @@
         init: init,
         newKernelQuery: newKernelQuery,
         addContextToErr: addContextToErr$1,
-        checkObj: checkObj
+        checkObj: checkObj,
+        objAsString: objAsString
     });
 
     // Blake2B, adapted from the reference implementation in RFC7693
@@ -5219,5 +5220,15 @@
     window.kernel = kernel;
     // @ts-ignore
     window.skynet = skynet;
+    window.addEventListener("message", (event) => {
+        const data = event.data?.data;
+        if (event.data.method === "log") {
+            if (data?.isErr === false) {
+                console.log(data.message);
+                return;
+            }
+            console.error(data.message);
+        }
+    });
 
 })();
