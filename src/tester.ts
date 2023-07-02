@@ -1,10 +1,7 @@
-import * as kernel from "libkernel";
-import * as skynet from "libskynet";
+import * as kernel from "@lumeweb/libkernel";
 
 // @ts-ignore
 window.kernel = kernel;
-// @ts-ignore
-window.skynet = skynet;
 
 window.addEventListener("message", (event) => {
   const data = event.data?.data;
