@@ -1,5 +1,5 @@
 {
-    "name": "@lumeweb/kernel-tester",
+    "name": "@lumeweb/kernel-sandbox",
     "version": "0.1.0",
     "scripts": {
         "prepare": "presetter bootstrap",
@@ -17,7 +17,7 @@
         "presetter": "*"
     },
     "readme": "ERROR: No README data found!",
-    "_id": "@lumeweb/kernel-tester@0.1.0",
+    "_id": "@lumeweb/kernel-sandbox@0.1.0",
     "dependencies": {
         "@lumeweb/libkernel": "^0.1.0-develop.21",
         "puppeteer": "^20.7.4",
