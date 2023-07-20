@@ -43,24 +43,3 @@ export async function loadTester(page: Page, port = 8080) {
     return kernel.init();
   });
 }
-
-class Tester {
-  private page: Page;
-
-  constructor(page: Page) {
-    this.page = page;
-  }
-
-  async callModule(id: string, method: string, data = {}): Promise<ErrTuple> {
-    return this.page.evaluate(
-      async (id, method, data) => {
-        return kernel.callModule(id, method, data);
-      },
-      id,
-      method,
-      data,
-    );
-  }
-}
-
-export const tester = (page: Page) => new Tester(page);
