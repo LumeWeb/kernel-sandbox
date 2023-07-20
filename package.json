@@ -12,14 +12,14 @@
         "kernel-sandbox": "bin/sandbox.js"
     },
     "devDependencies": {
-        "@lumeweb/presetter-preset-rollup": "^4.0.2-develop.12",
+        "@lumeweb/presetter-kernel-module-preset": "^0.1.0-develop.43",
         "@rollup/plugin-wasm": "^6.1.3",
         "presetter": "*"
     },
     "readme": "ERROR: No README data found!",
     "_id": "@lumeweb/kernel-tester@0.1.0",
     "dependencies": {
-        "@lumeweb/libkernel": "^0.1.0-develop.10",
+        "@lumeweb/libkernel": "^0.1.0-develop.21",
         "puppeteer": "^20.7.4",
         "static-server": "^2.2.1"
     }
