@@ -1,5 +1,4 @@
-import * as kernel from "@lumeweb/libkernel";
-
+import * as kernel from "@lumeweb/libkernel/kernel";
 // @ts-ignore
 window.kernel = kernel;
 
