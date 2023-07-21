@@ -15,6 +15,16 @@
                     }
                 }
             }
+        },
+        "publish": {
+            "plugins": {
+                "3": [
+                    "@semantic-release/npm",
+                    {
+                        "npmPublish": true
+                    }
+                ]
+            }
         }
     },
     "scripts": {
