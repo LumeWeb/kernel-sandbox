@@ -1,6 +1,10 @@
 {
     "name": "@lumeweb/kernel-sandbox",
     "version": "0.1.0",
+    "repository": {
+        "type": "git",
+        "url": "gitea@git.lumeweb.com:LumeWeb/kernel-sandbox.git"
+    },
     "scripts": {
         "prepare": "presetter bootstrap",
         "build": "run build build:bin build:lib",
