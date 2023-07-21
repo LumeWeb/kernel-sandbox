@@ -1,6 +1,6 @@
 {
     "name": "@lumeweb/kernel-sandbox",
-    "version": "0.1.0",
+    "version": "0.0.2-develop.1",
     "repository": {
         "type": "git",
         "url": "gitea@git.lumeweb.com:LumeWeb/kernel-sandbox.git"
@@ -21,7 +21,6 @@
         "presetter": "*"
     },
     "readme": "ERROR: No README data found!",
-    "_id": "@lumeweb/kernel-sandbox@0.1.0",
     "dependencies": {
         "@lumeweb/libkernel": "^0.1.0-develop.21",
         "puppeteer": "^20.7.4",
