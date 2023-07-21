@@ -1,3 +1,10 @@
+## [0.0.2-develop.4](https://git.lumeweb.com/LumeWeb/kernel-sandbox/compare/v0.0.2-develop.3...v0.0.2-develop.4) (2023-07-21)
+
+
+### Bug Fixes
+
+* update import path ([b17db64](https://git.lumeweb.com/LumeWeb/kernel-sandbox/commit/b17db64a70bfe2248faec21b4b67b10772e1b917))
+
 ## [0.0.2-develop.3](https://git.lumeweb.com/LumeWeb/kernel-sandbox/compare/v0.0.2-develop.2...v0.0.2-develop.3) (2023-07-21)
 
 
