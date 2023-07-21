@@ -9,6 +9,8 @@
             "version": "0.0.2-develop.4",
             "dependencies": {
                 "@lumeweb/libkernel": "^0.1.0-develop.23",
+                "@noble/ciphers": "^0.1.4",
+                "p-defer": "^4.0.0",
                 "puppeteer": "^20.7.4",
                 "static-server": "^2.2.1"
             },
@@ -1780,6 +1782,14 @@
                 "vite": "^4.4.2",
                 "vite-plugin-node-polyfills": "^0.9.0",
                 "vite-plugin-optimizer": "^1.4.2"
+            }
+        },
+        "node_modules/@noble/ciphers": {
+            "version": "0.1.4",
+            "resolved": "https://registry.npmjs.org/@noble/ciphers/-/ciphers-0.1.4.tgz",
+            "integrity": "sha512-d3ZR8vGSpy3v/nllS+bD/OMN5UZqusWiQqkyj7AwzTnhXFH72pF5oB4Ach6DQ50g5kXxC28LdaYBEpsyv9KOUQ==",
+            "funding": {
+                "url": "https://paulmillr.com/funding/"
             }
         },
         "node_modules/@noble/curves": {

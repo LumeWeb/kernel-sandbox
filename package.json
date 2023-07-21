@@ -23,6 +23,8 @@
     "readme": "ERROR: No README data found!",
     "dependencies": {
         "@lumeweb/libkernel": "^0.1.0-develop.23",
+        "@noble/ciphers": "^0.1.4",
+        "p-defer": "^4.0.0",
         "puppeteer": "^20.7.4",
         "static-server": "^2.2.1"
     },

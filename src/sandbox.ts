@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // @ts-ignore
-import { loadTester, login } from "../lib/index.js";
+import { loadTester } from "../lib/index.js";
 
 import puppeteer, { Browser, Page, ProtocolError } from "puppeteer";
 
@@ -10,7 +10,6 @@ let browser: Browser;
   browser = await puppeteer.launch({ headless: false, devtools: true });
 
   const page = (await browser.pages()).pop() as Page;
-  await login(page);
   await loadTester(page);
 })();
 

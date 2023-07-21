@@ -4,25 +4,10 @@ import * as kernel from "@lumeweb/libkernel/kernel";
 // @ts-ignore
 import StaticServer from "static-server";
 import { Page } from "puppeteer";
-import { bufToHex, ed25519 } from "@lumeweb/libkernel";
 
 import * as url from "url";
 
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
-
-export function generateSeedPhrase() {
-  return ed25519.utils.randomPrivateKey();
-}
-
-export async function login(page: Page, seed = generateSeedPhrase()) {
-  await page.goto("https://kernel.lumeweb.com");
-
-  let seedHex = bufToHex(seed);
-
-  await page.evaluate((seed: string) => {
-    window.localStorage.setItem("key", seed);
-  }, seedHex);
-}
 
 export async function loadTester(page: Page, port = 8080) {
   const server = new StaticServer({
@@ -42,4 +27,14 @@ export async function loadTester(page: Page, port = 8080) {
   await page.evaluate(() => {
     return kernel.init();
   });
+  await page.evaluate(() => {
+    // @ts-ignore
+    return window.main.loginRandom();
+  });
+}
+declare function loginRandom(): Promise<any>;
+declare global {
+  interface Window {
+    loginRandom: typeof loginRandom;
+  }
 }
