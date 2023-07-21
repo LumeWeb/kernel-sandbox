@@ -3,7 +3,8 @@
     "version": "0.1.0",
     "scripts": {
         "prepare": "presetter bootstrap",
-        "build": "run build build:bin build:lib"
+        "build": "run build build:bin build:lib",
+        "semantic-release": "semantic-release"
     },
     "main": "dist/index.js",
     "type": "module",
