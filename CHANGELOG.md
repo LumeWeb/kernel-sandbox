@@ -1,3 +1,10 @@
+## [0.0.2-develop.5](https://git.lumeweb.com/LumeWeb/kernel-sandbox/compare/v0.0.2-develop.4...v0.0.2-develop.5) (2023-07-21)
+
+
+### Bug Fixes
+
+* switch to https ([bb54af0](https://git.lumeweb.com/LumeWeb/kernel-sandbox/commit/bb54af0d37e5bba25190123ec88bd2871cd047c8))
+
 ## [0.0.2-develop.4](https://git.lumeweb.com/LumeWeb/kernel-sandbox/compare/v0.0.2-develop.3...v0.0.2-develop.4) (2023-07-21)
 
 
