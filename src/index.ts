@@ -20,7 +20,7 @@ export async function login(page: Page, seed = generateSeedPhrase()) {
   let seedHex = bufToHex(seed);
 
   await page.evaluate((seed: string) => {
-    window.localStorage.setItem("v1-key", seed);
+    window.localStorage.setItem("key", seed);
   }, seedHex);
 }
 
