@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // @ts-ignore
-import { loadTester, login } from "../build/index.js";
+import { loadTester, login } from "../lib/index.js";
 
 import puppeteer, { Browser, Page, ProtocolError } from "puppeteer";
 
