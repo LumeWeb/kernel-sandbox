@@ -1,0 +1,25 @@
+{
+    "preset": [
+        "@lumeweb/presetter-kernel-module-preset"
+    ],
+    "config": {
+        "browser": true,
+        "vite": {
+            "build": {
+                "copyPublicDir": false,
+                "lib": {
+                    "entry": "{source}/tester.js",
+                    "fileName": "tester",
+                    "formats": {
+                        "0": "umd"
+                    }
+                }
+            }
+        }
+    },
+    "scripts": {
+        "build:vite": "vite build",
+        "build:bin": "shx mv lib/tester.umd.cjs public/tester.js && shx mkdir -p bin && shx mv build/sandbox* bin/",
+        "build:lib": "shx  mv build/* lib/ && shx rm lib/tester*"
+    }
+}
