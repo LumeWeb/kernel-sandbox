@@ -4,7 +4,7 @@ import * as kernel from "@lumeweb/libkernel/kernel";
 // @ts-ignore
 import StaticServer from "static-server";
 import { Page } from "puppeteer";
-import { bufToHex, ed25519, ErrTuple } from "@lumeweb/libkernel";
+import { bufToHex, ed25519 } from "@lumeweb/libkernel";
 
 import * as url from "url";
 
