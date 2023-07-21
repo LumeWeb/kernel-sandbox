@@ -22,7 +22,7 @@
     },
     "readme": "ERROR: No README data found!",
     "dependencies": {
-        "@lumeweb/libkernel": "^0.1.0-develop.21",
+        "@lumeweb/libkernel": "^0.1.0-develop.23",
         "puppeteer": "^20.7.4",
         "static-server": "^2.2.1"
     },

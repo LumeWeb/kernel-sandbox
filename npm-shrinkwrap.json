@@ -8,7 +8,7 @@
             "name": "@lumeweb/kernel-sandbox",
             "version": "0.0.2-develop.2",
             "dependencies": {
-                "@lumeweb/libkernel": "^0.1.0-develop.21",
+                "@lumeweb/libkernel": "^0.1.0-develop.23",
                 "puppeteer": "^20.7.4",
                 "static-server": "^2.2.1"
             },
@@ -1683,11 +1683,11 @@
             }
         },
         "node_modules/@lumeweb/libkernel": {
-            "version": "0.1.0-develop.21",
-            "resolved": "https://registry.npmjs.org/@lumeweb/libkernel/-/libkernel-0.1.0-develop.21.tgz",
-            "integrity": "sha512-9gkGyH8udh/cojfEADY2XslJ6tvc+KBy66GlUSP8xnaKicXg+GxgG294/kRXjI9Brt4Y76XbWZqBw//vhDccfQ==",
+            "version": "0.1.0-develop.23",
+            "resolved": "https://registry.npmjs.org/@lumeweb/libkernel/-/libkernel-0.1.0-develop.23.tgz",
+            "integrity": "sha512-khpCNic2hN3nxdx/t9u6kS/6Dw0qWUd25uQTHoupaKGmD18Vq2VcGeLx89I1k+tHPowWg+WHRWPvEH7dMr4HwA==",
             "dependencies": {
-                "@lumeweb/libweb": "0.2.0-develop.26",
+                "@lumeweb/libweb": "0.2.0-develop.27",
                 "emittery": "^1.0.1"
             }
         },
@@ -1745,9 +1745,9 @@
             }
         },
         "node_modules/@lumeweb/libweb": {
-            "version": "0.2.0-develop.26",
-            "resolved": "https://registry.npmjs.org/@lumeweb/libweb/-/libweb-0.2.0-develop.26.tgz",
-            "integrity": "sha512-XRIDiqRFqlEbcwjxAfkv7UYnyTflN3Q4rki8YAd9QrLQM2vycslgPLYS53vVJVL9GPH93V5J9z2V4DPQZlOOkQ==",
+            "version": "0.2.0-develop.27",
+            "resolved": "https://registry.npmjs.org/@lumeweb/libweb/-/libweb-0.2.0-develop.27.tgz",
+            "integrity": "sha512-obS4a6mcHJNoWXy5fCDuGAIVMee0ivK8q/q0semqoS3v0PS7t7sUmRX5ajyCwGbACXYqEdq3vU7RwzxhUkuNGg==",
             "dependencies": {
                 "@lumeweb/community-portals": "^0.1.0-develop.6",
                 "@lumeweb/libportal": "^0.2.0-develop.16",
