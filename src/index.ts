@@ -15,7 +15,7 @@ export function generateSeedPhrase() {
 }
 
 export async function login(page: Page, seed = generateSeedPhrase()) {
-  await page.goto("http://kernel.lumeweb.com");
+  await page.goto("https://kernel.lumeweb.com");
 
   let seedHex = bufToHex(seed);
 
