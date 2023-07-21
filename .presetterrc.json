@@ -16,7 +16,7 @@
                 }
             }
         },
-        "publish": {
+        "release": {
             "plugins": {
                 "3": [
                     "@semantic-release/npm",
